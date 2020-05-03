@@ -1,10 +1,10 @@
 import logging
 import os
 import sys
-from whalealert.api.transactions import Transactions
-import whalealert.settings as settings
 from configchecker import ConfigChecker
 from dbops.sqhelper import SQHelper
+from whalealert.api.transactions import Transactions
+import whalealert.settings as settings
 
 log = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ class WhaleAlert():
             self.__status = None
             self.__database = None
         log.debug("Started new Whale Alert API wrapper.")
+        self.transactions = Transactions()
 
     def __setup_logging(self, working_directory, log_level):
         logging_file = os.path.join(working_directory, settings.data_file_directory, settings.log_file_name)
@@ -94,6 +95,8 @@ class WhaleAlert():
     def get_configuration(self):
         """ Get the configuration used
 
+        Note: This function always returns None if a working_directory is not supplied when the class object is created.
+
         Returns:
         config (ConfigChecker) if a valid configuration exists.
         None: No configuration exists
@@ -101,7 +104,54 @@ class WhaleAlert():
         return self.__config
 
     def get_status(self):
+        """ Get the status file used
+
+        Note: This function always returns None if a working_directory is not supplied when the class object is created.
+
+        Returns:
+        status (ConfigChecker) if a valid status file exists.
+        None: No configuration exists
+        """
         return self.__status
 
     def get_database(self):
+        """ Get the database file used
+
+        Note: This function always returns None if a working_directory is not supplied when the class object is created.
+
+        Returns:
+        database (SQHelper) if a valid database is connected.
+        None: No database is connected.
+
+        """
         return self.__database
+
+    def get_transactions(self, start_time, end_time=None, api_key=None, cursor=None, min_value=500000, limit=100):
+        """ Use the Whale Alert API to get the lastest transactions for a given time period
+
+        """
+        if self.__config is None and api_key is None:
+            raise ValueError("An API key needs to be supplied to get latest transactions")
+        if self.__config is not None and api_key is None:
+            api_key = self.__config.get_value(settings.API_section_name, settings.API_option_private_key)
+        if self.__config is not None and min_value == 500000:
+            min_value = self.__config.get_value(settings.API_section_name, settings.API_option_minimum_value)
+
+        success, transactions, status = self.transactions.get_transactions(start_time, end_time, api_key, cursor, min_value, limit)
+        return success, transactions, status
+
+    def write_custom_status(self, status):
+        pass
+
+    def fetch_and_store_data(self, api_key=None):
+        pass
+
+    def to_excel(self, output_file='whaleAlert.xlsl'):
+        pass
+
+    def start_daemon(self):
+        pass
+
+    def data_request(self, request):
+        pass
+
