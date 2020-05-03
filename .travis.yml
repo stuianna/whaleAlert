@@ -1,0 +1,26 @@
+language: python
+
+os: linux
+dist: xenial
+
+jobs:
+  include:
+    - name: "Python 3.8 on Xenial Linux - amd64"
+      python: 3.8
+      arch: amd64
+    - name: "Python 3.7 on Xenial Linux - amd64"
+      python: 3.7
+      arch: amd64
+    - name: "Python 3.6 on Xenial Linux - amd64"
+      python: 3.6
+      arch: amd64
+
+install:
+  - pip3 install -r requirements.txt
+
+script:
+  - make test
+  - make testRun
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
