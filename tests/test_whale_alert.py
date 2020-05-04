@@ -29,7 +29,7 @@ class WhaleAlertInit(unittest.TestCase):
     """ Testing whale alert initialisation"""
 
     def setUp(self):
-        self.whale = WhaleAlert(TEST_WORKING_DIR)
+        self.whale = WhaleAlert(TEST_WORKING_DIR, log_level=logging.DEBUG)
         self.config = self.whale.get_configuration()
         self.status = self.whale.get_status()
         self.database = self.whale.get_database()
@@ -38,14 +38,14 @@ class WhaleAlertInit(unittest.TestCase):
         cleanup_working_directories()
 
     def test_configuration_directories_and_files_created_ok_with_good_directory(self):
-        whale = WhaleAlert(working_directory=TEST_WORKING_DIR)
+        whale = WhaleAlert(working_directory=TEST_WORKING_DIR, log_level=logging.DEBUG)
         self.check_directories_are(TEST_WORKING_DIR, True)
 
     def test_configuration_directories_and_files_created_ok_with_bad_directory_permissions(self):
-        self.assertRaises(PermissionError,WhaleAlert,TEST_WORKING_DIR_BAD_PERMISSIONS)
+        self.assertRaises(PermissionError,WhaleAlert,TEST_WORKING_DIR_BAD_PERMISSIONS, log_level=logging.DEBUG)
 
     def test_configuration_directories_and_files_created_ok_with_bad_directory_permissions(self):
-        self.assertRaises(NotADirectoryError,WhaleAlert,TEST_WORKING_DIR_ALREADY_EXISTS)
+        self.assertRaises(NotADirectoryError,WhaleAlert,TEST_WORKING_DIR_ALREADY_EXISTS, log_level=logging.DEBUG)
 
     def check_directories_are(self, directory, status):
         config_exists = os.path.exists(os.path.join(directory, settings.input_configuation_filename))
@@ -57,7 +57,6 @@ class WhaleAlertInit(unittest.TestCase):
         self.assertEqual(data_dir_exists, status)
         self.assertEqual(database_exists, status)
         self.assertEqual(status_exists, status)
-        self.assertEqual(logs_exists, status)
 
     def test_status_database_config_are_none_with_no_working_directory(self):
         whale = WhaleAlert()
