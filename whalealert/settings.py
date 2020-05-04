@@ -21,6 +21,7 @@ API_option_minimum_value_default = 500000
 status_file_last_good_call_section_name = 'Last Successful Call'
 status_file_last_failed_secion_name = 'Last Failed Call'
 
+status_file_option_transaction_count = 'transaction_count'
 status_file_option_timeStamp = 'timestamp'
 status_file_option_error_code = 'error_code'
 status_file_option_error_message = 'error_message'
@@ -32,3 +33,31 @@ status_file_option_successful_calls = 'successful_calls'
 status_file_option_failed_calls = 'failed_calls'
 status_file_option_success_rate = 'success_rate'
 status_file_option_health = "health"
+
+# Whale Alert API
+whale_get_transactions_url = 'https://api.whale-alert.io/v1/transactions'
+whale_retries_on_failure = 3
+whale_call_timeout_seconds = 10
+
+whale_error_message = 'message'
+
+whale_success_result = 'result'
+whale_success_cursor = 'cursor'
+whale_success_count = 'count'
+whale_success_transactions = 'transactions'
+
+whale_transaction_blockchain = 'blockchain'
+whale_transaction_symbol = 'symbol'
+whale_transaction_id = 'id'
+whale_transaction_transaction_type = 'transaction_type'
+whale_transaction_hash = 'hash'
+whale_transaction_from = 'from'
+whale_transaction_address = 'address'
+whale_transaction_owner = 'owner'
+whale_transaction_owner_type = 'owner_type'
+whale_transaction_to = 'to'
+whale_transaction_timestamp = 'timestamp'
+whale_transaction_amount = 'amount'
+whale_transaction_amount_usd = 'amount_usd'
+whale_transaction_transaction_count = 'transaction_count'
+

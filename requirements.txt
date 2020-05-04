@@ -12,4 +12,3 @@ pytz==2020.1
 requests==2.23.0
 six==1.14.0
 urllib3==1.25.9
-whale-alert==0.0.1

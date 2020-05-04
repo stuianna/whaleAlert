@@ -29,7 +29,7 @@ class WhaleAlert():
         logging_file = os.path.join(working_directory, settings.data_file_directory, settings.log_file_name)
         try:
             logging.basicConfig(format='%(asctime)s %(levelname)s %(module)s: %(message)s',
-                                datefmt='%m/%d/%Y %I:%M:%S%p', level=logging.DEBUG, filename=logging_file)
+                                datefmt='%m/%d/%Y %I:%M:%S%p', level=log_level, filename=logging_file)
         except Exception as e_r:
             print("Failed to create logging file. Exception '{}'".format(e_r), file=sys.stderr)
             raise
@@ -37,6 +37,7 @@ class WhaleAlert():
     def __setup_status_file(self, working_directory):
         status = ConfigChecker();
         status.set_expectation(settings.status_file_last_good_call_section_name, settings.status_file_option_timeStamp, str, '')
+        status.set_expectation(settings.status_file_last_good_call_section_name, settings.status_file_option_transaction_count, int, 0)
 
         status.set_expectation(settings.status_file_last_failed_secion_name, settings.status_file_option_timeStamp, str, '')
         status.set_expectation(settings.status_file_last_failed_secion_name, settings.status_file_option_error_code, int, 0)
@@ -129,7 +130,15 @@ class WhaleAlert():
     def get_transactions(self, start_time, end_time=None, api_key=None, cursor=None, min_value=500000, limit=100):
         """ Use the Whale Alert API to get the lastest transactions for a given time period
 
+        Parameters:
+        start_time (int): A unix time stamp representing the start time to get transactions (exclusive)
+
         """
+
+        if type(start_time) is not int:
+            raise ValueError("Start time must be a unix time stamp integer")
+        if end_time is not None and type(end_time) is not int:
+            raise ValueError("End time must be a unix time stamp integer")
         if self.__config is None and api_key is None:
             raise ValueError("An API key needs to be supplied to get latest transactions")
         if self.__config is not None and api_key is None:

@@ -75,6 +75,7 @@ class WhaleAlertInit(unittest.TestCase):
 
     def test_status_values_are_default(self):
         self.assertEqual(self.status.get_value(settings.status_file_last_good_call_section_name, settings.status_file_option_timeStamp), '')
+        self.assertEqual(self.status.get_value(settings.status_file_last_good_call_section_name, settings.status_file_option_transaction_count), 0)
 
         self.assertEqual(self.status.get_value(settings.status_file_last_failed_secion_name, settings.status_file_option_timeStamp), '')
         self.assertEqual(self.status.get_value(settings.status_file_last_failed_secion_name, settings.status_file_option_error_code), 0)
@@ -121,7 +122,15 @@ class WhaleAlertAPICall(unittest.TestCase):
 
     def test_no_config_value_raises_exception_if_api_key_not_supplied(self):
         whale = WhaleAlert()
-        self.assertRaises(ValueError,whale.get_transactions,0)
+        self.assertRaises(ValueError,whale.get_transactions, 0)
+
+    def test_raises_exception_if_start_time_is_not_int(self):
+        whale = WhaleAlert()
+        self.assertRaises(ValueError,whale.get_transactions, 'not_an_int', api_key='1234')
+
+    def test_raises_exception_if_end_time_is_not_int(self):
+        whale = WhaleAlert()
+        self.assertRaises(ValueError,whale.get_transactions, 0, end_time='not_an_int', api_key='1234')
 
     def test_no_config_get_transactions_works_as_normal(self):
         whale = WhaleAlert()
