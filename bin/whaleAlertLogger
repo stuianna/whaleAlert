@@ -6,71 +6,54 @@ import argparse
 import subprocess
 import appdirs
 import whalealert.settings as settings
+from whalealert.whalealert import WhaleAlert
+import time
 
 log = logging.getLogger(__name__)
 
+
 def create_arguments(parser):
-    parser.add_argument(
-        '-a',
-        '--api_key',
-        nargs=1,
-        help="Supply the whale alert API key to be used.",
-        default = None)
+    parser.add_argument('-a', '--api_key', nargs=1, help="Supply the whale alert API key to be used.", default=None)
 
-    parser.add_argument(
-        '-w',
-        '--working_directory',
-        nargs=1,
-        help="Specify the directory to setup the configuration,\
+    parser.add_argument('-w',
+                        '--working_directory',
+                        nargs=1,
+                        help="Specify the directory to setup the configuration,\
          status and database files. If not supplied, set to user configuration directory.",
-        default = None)
+                        default=None)
 
-    parser.add_argument(
-        '-k',
-        '--kill',
-        action='store_true',
-        help="Kills any running whale alert daemon",
-        default = False)
-    
-    parser.add_argument(
-        '-g',
-        '--generate_config',
-        action='store_true',
-        help="Generates the neccessary configuration files.")
+    parser.add_argument('-k', '--kill', action='store_true', help="Kills any running whale alert daemon", default=False)
 
-    parser.add_argument(
-        '-s',
-        '--status',
-        action='store_true',
-        help="Get the status of the whale alert logger, \
+    parser.add_argument('-g',
+                        '--generate_config',
+                        action='store_true',
+                        help="Generates the neccessary configuration files.")
+
+    parser.add_argument('-s',
+                        '--status',
+                        action='store_true',
+                        help="Get the status of the whale alert logger, \
             can be combined with -j and -l to modify the output format.")
 
-    parser.add_argument(
-        '-d',
-        '--detail',
-        action='store_true',
-        help="To be used with the -s options.\
+    parser.add_argument('-d',
+                        '--detail',
+                        action='store_true',
+                        help="To be used with the -s options.\
             Outputs verbose information for the logger status.")
 
-    parser.add_argument(
-        '-j',
-        '--json',
-        action='store_true',
-        help="Use json format for status requests")
+    parser.add_argument('-j', '--json', action='store_true', help="Use json format for status requests")
 
-    parser.add_argument(
-        '-l',
-        '--log',
-        nargs=1,
-        help="Log level. Must be one of either \
+    parser.add_argument('-l',
+                        '--log',
+                        nargs=1,
+                        help="Log level. Must be one of either \
             DEBUG, INFO, WARNING, ERROR or CRITICAL. Default = INFO")
 
-    parser.add_argument(
-        '-x',
-        '--excel',
-        action='store_true',
-        help="Save the whale watching database to an Excel file 'whaleAlert.xlsl'"
-    )
+    parser.add_argument('-x',
+                        '--excel',
+                        action='store_true',
+                        help="Save the whale watching database to an Excel file 'whaleAlert.xlsl'")
+
 
 def processLogLevel(level):
 
@@ -87,6 +70,7 @@ def processLogLevel(level):
     else:
         return logging.INFO
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -94,13 +78,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.kill:
-        subprocess.Popen(['killall', 'whaleAlertLogger'])
+        WhaleAlert.kill()
         sys.exit()
 
     if args.working_directory is not None:
-        workingDirectory = args.working_directory[0]
+        working_directory = args.working_directory[0]
     else:
-        workingDirectory = appdirs.user_config_dir(settings.appNameDirectory)
+        working_directory = appdirs.user_config_dir(settings.appNameDirectory)
 
     if args.log is not None:
         logLevel = processLogLevel(args.log[0])
@@ -112,4 +96,6 @@ if __name__ == '__main__':
     else:
         api_key = None
 
+    whale = WhaleAlert(working_directory=working_directory, log_level=logging.INFO)
+    whale.start_daemon()
     sys.exit()

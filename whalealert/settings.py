@@ -17,7 +17,7 @@ API_option_interval_default = 60
 API_option_minimum_value = 'minimum_transaction_value'
 API_option_minimum_value_default = 500000
 API_option_historical_limit = 'historical_limit'
-API_option_historical_limit_default = 3600
+API_option_historical_limit_default = 3599
 
 # Status file definitions
 status_file_last_good_call_section_name = 'Last Successful Call'

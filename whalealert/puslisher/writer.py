@@ -23,6 +23,16 @@ class Writer():
         return self.__database
 
     def write_transactions(self, transactions):
+        """
+        Write transactions to the dataabse
+
+        Parameters:
+        transactions (dict): Transactions returned by api.get_trasactions
+
+        Returns:
+        True: Transactions were written successfully
+        False: An error occured, status written to logs.
+        """
         if len(transactions) == 0:
             log.debug("Trying to write an empty list of transactions")
             return False
@@ -63,6 +73,13 @@ class Writer():
         self.__database.create_table(transaction[settings.database_table_identifier], settings.database_columns)
 
     def write_status(self, status):
+        """"
+        Write the logger status to the status file
+
+        Returns:
+        True: The file was written successfully
+        False: The file couldn't be written, error status written to logs
+        """
         if type(self.__status) is not ConfigChecker:
             return False
         try:
