@@ -85,7 +85,7 @@ class Reader():
                 log.error("Invalid column names found in database. Exception {}".format(e))
 
         log.debug("Successful data request returned {} results".format(len(results)))
-        return output
+        return output[:-1]
 
     def __check_data_request_keys(self, request):
         try:

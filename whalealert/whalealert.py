@@ -8,8 +8,8 @@ import pandas as pd
 from configchecker import ConfigChecker
 from dbops.sqhelper import SQHelper
 from whalealert.api.transactions import Transactions
-from whalealert.puslisher.writer import Writer
-from whalealert.puslisher.reader import Reader
+from whalealert.publisher.writer import Writer
+from whalealert.publisher.reader import Reader
 import whalealert.settings as settings
 
 log = logging.getLogger(__name__)

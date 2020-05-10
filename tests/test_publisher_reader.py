@@ -5,8 +5,8 @@ import logging
 import os
 import datetime
 import whalealert.settings as settings
-from whalealert.puslisher.writer import Writer
-from whalealert.puslisher.reader import Reader
+from whalealert.publisher.writer import Writer
+from whalealert.publisher.reader import Reader
 from whalealert.whalealert import WhaleAlert
 
 logging.disable(logging.CRITICAL)
@@ -165,6 +165,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         request[settings.request_from_time] = 0
         data = test_good_data[0]
         expected_output = format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -177,6 +178,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         request[settings.request_from_time] = 0
         data = test_good_data[4]
         expected_output = format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -191,6 +193,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         expected_output = format_output(data)
         data = test_good_data[4]
         expected_output = expected_output + format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -207,6 +210,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         expected_output = expected_output + format_output(data)
         data = test_good_data[4]
         expected_output = expected_output + format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -219,6 +223,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         request[settings.request_from_time] = 0
         data = test_good_data[4]
         expected_output = format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -233,6 +238,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         expected_output = format_output(data)
         data = test_good_data[4]
         expected_output = expected_output + format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -245,6 +251,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         request[settings.request_from_time] = 0
         data = test_good_data[4]
         expected_output = format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -257,6 +264,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         request[settings.request_from_time] = 1488874451
         data = test_good_data[4]
         expected_output = format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -271,6 +279,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         expected_output = format_output(data)
         data = test_good_data[2]
         expected_output = expected_output + format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -285,6 +294,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         expected_output = format_output(data)
         data = test_good_data[4]
         expected_output = expected_output + format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
@@ -305,6 +315,7 @@ class RequestingStatusByExchange(unittest.TestCase):
         expected_output = expected_output + format_output(data)
         data = test_good_data[4]
         expected_output = expected_output + format_output(data)
+        expected_output = expected_output[:-1]
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 

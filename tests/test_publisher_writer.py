@@ -4,7 +4,7 @@ import time
 import logging
 import os
 import whalealert.settings as settings
-from whalealert.puslisher.writer import Writer
+from whalealert.publisher.writer import Writer
 from whalealert.whalealert import WhaleAlert
 
 logging.disable(logging.CRITICAL)

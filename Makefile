@@ -14,12 +14,19 @@ testRun: install package
 	@$(CLI_APP) -w testWorkingDir -g 
 	@$(CLI_APP) -a 1234 -w testWorkingDir &
 	@sleep 5
+	@$(CLI_APP) -k 
 	@$(CLI_APP) -l WARNING -w testWorkingDir &
 	@sleep 3
+	@$(CLI_APP) -k 
 	@$(CLI_APP) -s
 	@$(CLI_APP) -s -d
 	@$(CLI_APP) -s -j
 	@$(CLI_APP) -s -d -j
+	@$(CLI_APP) -q
+	@$(CLI_APP) -q -m 1
+	@$(CLI_APP) -q -b bitcoin
+	@$(CLI_APP) -q -b bitcoin -t BTC
+	@$(CLI_APP) -q -t ETH
 	@$(CLI_APP) -w testWorkingDir -x
 	@rm -f cryptoData.xlsx 
 	@rm -rf testWorkingDir
