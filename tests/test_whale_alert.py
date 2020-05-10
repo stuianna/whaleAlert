@@ -71,6 +71,7 @@ class WhaleAlertInit(unittest.TestCase):
         self.assertEqual(self.config.get_value(settings.API_section_name, settings.API_option_private_key), settings.API_option_privatate_key_default)
         self.assertEqual(self.config.get_value(settings.API_section_name, settings.API_option_interval), settings.API_option_interval_default)
         self.assertEqual(self.config.get_value(settings.API_section_name, settings.API_option_minimum_value), settings.API_option_minimum_value_default)
+        self.assertEqual(self.config.get_value(settings.API_section_name, settings.API_option_historical_limit), settings.API_option_historical_limit_default)
 
     def test_status_values_are_default(self):
         self.assertEqual(self.status.get_value(settings.status_file_last_good_call_section_name, settings.status_file_option_timeStamp), '')

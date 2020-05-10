@@ -10,7 +10,6 @@ from requests import Session
 from requests.exceptions import Timeout, TooManyRedirects
 import whalealert.settings as settings
 
-
 log = logging.getLogger(__name__)
 
 
@@ -18,12 +17,11 @@ class Transactions():
     """
     API wrapper for getting transactions from Whale Alert API
     """
-
     def __init__(self):
         self.__session = Session()
-        self.__last_timestamp = 0
+        self.__last_timestamp = int(time.time())
         self.__last_cursor = ''
-        self.__call_return_time = 0
+        self.__call_return_time = int(time.time())
         logging.debug("Transactions object created")
 
     def get_last_timestamp(self):
@@ -66,7 +64,8 @@ class Transactions():
         status (dict): A dictionary containing the timestamp, error_code and error_message for the transaction.
         """
         parameters = self.__form_request(start_time, end_time, api_key, cursor, min_value, limit)
-        log.debug("Attempting API call at '{}' with parameters '{}'".format(settings.whale_get_transactions_url, parameters))
+        log.debug("Attempting API call at '{}' with parameters '{}'".format(settings.whale_get_transactions_url,
+                                                                            parameters))
 
         success, response, status = self.__attempt_call(parameters)
         if success is not True:
@@ -80,14 +79,17 @@ class Transactions():
         attempt = 1
         while retries >= 0:
             try:
-                response = self.__session.get(settings.whale_get_transactions_url, params=parameters, timeout=settings.whale_call_timeout_seconds)
+                response = self.__session.get(settings.whale_get_transactions_url,
+                                              params=parameters,
+                                              timeout=settings.whale_call_timeout_seconds)
                 self.__call_return_time = int(time.time())
                 retries = -1
             except ConnectionError:
                 retries, attempt, done = self.__evalulate_attempt(retries, attempt)
                 if not done:
                     continue
-                status = self.__make_custom_status(1, "Internal error: Connection exception when conduction API call", 0)
+                status = self.__make_custom_status(1, "Internal error: Connection exception when conduction API call",
+                                                   0)
                 return False, None, status
             except Timeout:
                 retries, attempt, done = self.__evalulate_attempt(retries, attempt)
@@ -99,21 +101,25 @@ class Transactions():
                 retries, attempt, done = self.__evalulate_attempt(retries, attempt)
                 if not done:
                     continue
-                status = self.__make_custom_status(3, "Internal error: TooManyRedirect exception when conduction API call", 0)
+                status = self.__make_custom_status(
+                    3, "Internal error: TooManyRedirect exception when conduction API call", 0)
                 return False, None, status
             except Exception as e_r:
                 retries, attempt, done = self.__evalulate_attempt(retries, attempt)
                 if not done:
                     continue
-                status = self.__make_custom_status(4, "Internal error: Exception {} when conduction API call".format(e_r), 0)
+                status = self.__make_custom_status(4,
+                                                   "Internal error: Exception {} when conduction API call".format(e_r),
+                                                   0)
                 return False, None, status
         return True, response, None
 
     def __evalulate_attempt(self, retries, attempt):
         if retries >= 1:
             retries = retries - 1
-            time.sleep(2*attempt)
-            log.warning("Exception occurred on API call attempt {} of {}".format(attempt, settings.whale_retries_on_failure));
+            time.sleep(2 * attempt)
+            log.warning("Exception occurred on API call attempt {} of {}".format(attempt,
+                                                                                 settings.whale_retries_on_failure))
             attempt = attempt + 1
             done = False
         else:
@@ -127,7 +133,10 @@ class Transactions():
             status = self.__make_custom_status(5, "Internal error: Error parsing JSON object from received response", 0)
             return False, None, status
         except Exception as e:
-            status = self.__make_custom_status(6, "Internal error: Exception {} when parsing JSON object from received response. Response =  {}".format(e, response.text), 0)
+            status = self.__make_custom_status(
+                6,
+                "Internal error: Exception {} when parsing JSON object from received response. Response =  {}".format(
+                    e, response.text), 0)
             return False, None, status
 
         if response.status_code != 200:
@@ -182,7 +191,9 @@ class Transactions():
                 else:
                     transaction[settings.whale_transaction_to][settings.whale_transaction_owner] = ''
             except KeyError:
-                return False, None, self.__make_custom_status(10, 'Internal error: Error with transactions JSON keys, bad transaction = {}'.format(transaction), 0)
+                return False, None, self.__make_custom_status(
+                    10, 'Internal error: Error with transactions JSON keys, bad transaction = {}'.format(transaction),
+                    0)
         return True, json_fields[settings.whale_success_transactions], None
 
     def __check_main_keys(self, json_fields):
@@ -193,10 +204,13 @@ class Transactions():
             if count > 0:
                 transactions = json_fields[settings.whale_success_transactions]
                 if len(transactions) != count:
-                    status = self.__make_custom_status(8, "Internal error: Transaction count doesn't match reported count. Response = {}".format(json_fields), 0)
+                    status = self.__make_custom_status(
+                        8, "Internal error: Transaction count doesn't match reported count. Response = {}".format(
+                            json_fields), 0)
                     return False, 0, status
         except KeyError:
-            status = self.__make_custom_status(9, "Internal error: Problem parsing main keys. Response = {}".format(json_fields), 0)
+            status = self.__make_custom_status(
+                9, "Internal error: Problem parsing main keys. Response = {}".format(json_fields), 0)
             return False, 0, status
         return True, count, None
 
@@ -205,7 +219,8 @@ class Transactions():
             message = json_response[settings.whale_error_message]
         except Exception as e_r:
             code = 7
-            message = "Internal error: Cannot read message from error response. Response = {}, Exception = {}".format(json_response, e_r)
+            message = "Internal error: Cannot read message from error response. Response = {}, Exception = {}".format(
+                json_response, e_r)
         return self.__make_custom_status(code, message, 0)
 
     def __make_custom_status(self, errNo, message, transaction_count):

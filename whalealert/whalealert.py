@@ -74,6 +74,7 @@ class WhaleAlert():
         config.set_expectation(settings.API_section_name, settings.API_option_private_key, str, settings.API_option_privatate_key_default)
         config.set_expectation(settings.API_section_name, settings.API_option_interval, int, settings.API_option_interval_default)
         config.set_expectation(settings.API_section_name, settings.API_option_minimum_value, int, settings.API_option_minimum_value_default)
+        config.set_expectation(settings.API_section_name, settings.API_option_historical_limit, int, settings.API_option_historical_limit_default)
 
         target_directory = os.path.join(working_directory, settings.input_configuation_filename)
         config.set_configuration_file(target_directory)

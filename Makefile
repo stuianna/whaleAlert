@@ -36,7 +36,7 @@ $(VENV_ACTIVATE):
 	@touch $(VENV_ACTIVATE)
 
 install:
-	@pip3 install  .
+	@pip3 install --user  .
 
 testRelease: test
 	@$(PYTHON) -m twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/*

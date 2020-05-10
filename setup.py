@@ -8,7 +8,7 @@ setuptools.setup(
     scripts = ['bin/whaleAlertLogger'],
     version = '0.0.1',
     author ="stuianna",
-    author_email = "stuiaa@protonmail.com",
+    author_email = "stuian@protonmail.com",
     description = "Cryptocurrency Whale Alert API Logger",
     long_description=long_description,
     long_description_content_type="text/markdown",
