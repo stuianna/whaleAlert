@@ -180,6 +180,7 @@ class Transactions():
                 dummy = transaction[settings.whale_transaction_transaction_count]
 
                 owner_type = transaction[settings.whale_transaction_from][settings.whale_transaction_owner_type]
+                transaction[settings.whale_transaction_symbol] = transaction[settings.whale_transaction_symbol].upper()
                 if owner_type != 'unknown':
                     dummy = transaction[settings.whale_transaction_from][settings.whale_transaction_owner]
                 else:

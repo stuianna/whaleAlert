@@ -41,6 +41,26 @@ def create_arguments(parser):
                         help="To be used with the -s options.\
             Outputs verbose information for the logger status.")
 
+    parser.add_argument('-q',
+                        '--query',
+                        action='store_true',
+                        help="Query last whale alerts, by default returns all blockchains, all tags, up to 20 entries")
+
+    parser.add_argument('-b',
+                        '--blockchain',
+                        nargs='+',
+                        help="To be used optionally with the -q option. Specify which blockchains to query from.")
+
+    parser.add_argument('-t',
+                        '--tags',
+                        nargs='+',
+                        help="To be used optionally with the -q option. Specify which symbols (tags) to query from.")
+
+    parser.add_argument('-m',
+                        '--max',
+                        nargs=1,
+                        help="The maximum number of entries to be returned by a query. (default = 20) ")
+
     parser.add_argument('-j', '--json', action='store_true', help="Use json format for status requests")
 
     parser.add_argument('-l',
@@ -97,5 +117,14 @@ if __name__ == '__main__':
         api_key = None
 
     whale = WhaleAlert(working_directory=working_directory, log_level=logging.INFO)
+
+    if args.query is True:
+        if args.max is not None:
+            maximum = int(args.max[0])
+        else:
+            maximum = 20
+        print(whale.data_request(blockchain=args.blockchain, symbols=args.tags, max_results=maximum))
+        sys.exit()
+
     whale.start_daemon()
     sys.exit()

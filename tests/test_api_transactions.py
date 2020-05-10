@@ -11,18 +11,151 @@ from whalealert.api.transactions import Transactions
 
 logging.disable(logging.CRITICAL)
 
-text_error = {"result":"error","message":"invalid api_key"}
-text_error_bad_key = {"result":"error","bad_key":"invalid api_key"}
-text_empty = {"result":"success","cursor":"2712e8b6-2712e8b6-5eafc647","count":0}
-text_empty_bad_key = {"result":"success","bad_key":"2712e8b6-2712e8b6-5eafc647","count":0}
-text_success = {"result":"success","cursor":"2712f286-2712f286-5eafc711","count":2,"transactions":[{"blockchain":"ethereum","symbol":"usdt","id":"655552612","transaction_type":"transfer","hash":"4cdfc57c737b4214fbce384e57f50d8b52f80c2eb470654f9fdc2062c534bf42","from":{"address":"477b8d5ef7c2c42db84deb555419cd817c336b6f","owner_type":"unknown"},"to":{"address":"b3fe1649862d7889ab002e0224a2db54870eafa9","owner_type":"unknown"},"timestamp":1588578025,"amount":500000,"amount_usd":503430.84,"transaction_count":1},{"blockchain":"ethereum","symbol":"usdt","id":"655553158","transaction_type":"transfer","hash":"19a393cb0fe2cd5975a3741e43f05859877b639b1c93dd19acd4abfa08715530","from":{"address":"df38a19aa5db1f15c6df389d86175285d45fa572","owner_type":"exchange","owner":"stuart"},"to":{"address":"80c6e081ae5813b163357774003d3695faa0f53e","owner_type":"exchange","owner":"stuart"},"timestamp":1588578065,"amount":500000,"amount_usd":509513.7,"transaction_count":1}]}
-text_success_bad_count = {"result":"success","cursor":"2712f286-2712f286-5eafc711","count":3,"transactions":[{"blockchain":"ethereum","symbol":"usdt","id":"655552612","transaction_type":"transfer","hash":"4cdfc57c737b4214fbce384e57f50d8b52f80c2eb470654f9fdc2062c534bf42","from":{"address":"477b8d5ef7c2c42db84deb555419cd817c336b6f","owner_type":"unknown"},"to":{"address":"b3fe1649862d7889ab002e0224a2db54870eafa9","owner_type":"unknown"},"timestamp":1588578025,"amount":500000,"amount_usd":503430.84,"transaction_count":1},{"blockchain":"ethereum","symbol":"usdt","id":"655553158","transaction_type":"transfer","hash":"19a393cb0fe2cd5975a3741e43f05859877b639b1c93dd19acd4abfa08715530","from":{"address":"df38a19aa5db1f15c6df389d86175285d45fa572","owner_type":"unknown"},"to":{"address":"80c6e081ae5813b163357774003d3695faa0f53e","owner_type":"unknown"},"timestamp":1588578065,"amount":500000,"amount_usd":509513.7,"transaction_count":1}]}
-text_success_bad_key = {"result":"success","cursor":"2712f286-2712f286-5eafc711","count":2,"transactions":[{"bad_key":"ethereum","symbol":"usdt","id":"655552612","transaction_type":"transfer","hash":"4cdfc57c737b4214fbce384e57f50d8b52f80c2eb470654f9fdc2062c534bf42","from":{"address":"477b8d5ef7c2c42db84deb555419cd817c336b6f","owner_type":"unknown"},"to":{"address":"b3fe1649862d7889ab002e0224a2db54870eafa9","owner_type":"unknown"},"timestamp":1588578025,"amount":500000,"amount_usd":503430.84,"transaction_count":1},{"blockchain":"ethereum","symbol":"usdt","id":"655553158","transaction_type":"transfer","hash":"19a393cb0fe2cd5975a3741e43f05859877b639b1c93dd19acd4abfa08715530","from":{"address":"df38a19aa5db1f15c6df389d86175285d45fa572","owner_type":"unknown"},"to":{"address":"80c6e081ae5813b163357774003d3695faa0f53e","owner_type":"unknown"},"timestamp":1588578065,"amount":500000,"amount_usd":509513.7,"transaction_count":1}]}
+text_error = {"result": "error", "message": "invalid api_key"}
+text_error_bad_key = {"result": "error", "bad_key": "invalid api_key"}
+text_empty = {"result": "success", "cursor": "2712e8b6-2712e8b6-5eafc647", "count": 0}
+text_empty_bad_key = {"result": "success", "bad_key": "2712e8b6-2712e8b6-5eafc647", "count": 0}
+text_success = {
+    "result":
+    "success",
+    "cursor":
+    "2712f286-2712f286-5eafc711",
+    "count":
+    2,
+    "transactions": [{
+        "blockchain": "ethereum",
+        "symbol": "usdt",
+        "id": "655552612",
+        "transaction_type": "transfer",
+        "hash": "4cdfc57c737b4214fbce384e57f50d8b52f80c2eb470654f9fdc2062c534bf42",
+        "from": {
+            "address": "477b8d5ef7c2c42db84deb555419cd817c336b6f",
+            "owner_type": "unknown"
+        },
+        "to": {
+            "address": "b3fe1649862d7889ab002e0224a2db54870eafa9",
+            "owner_type": "unknown"
+        },
+        "timestamp": 1588578025,
+        "amount": 500000,
+        "amount_usd": 503430.84,
+        "transaction_count": 1
+    }, {
+        "blockchain": "ethereum",
+        "symbol": "USDT",
+        "id": "655553158",
+        "transaction_type": "transfer",
+        "hash": "19a393cb0fe2cd5975a3741e43f05859877b639b1c93dd19acd4abfa08715530",
+        "from": {
+            "address": "df38a19aa5db1f15c6df389d86175285d45fa572",
+            "owner_type": "exchange",
+            "owner": "stuart"
+        },
+        "to": {
+            "address": "80c6e081ae5813b163357774003d3695faa0f53e",
+            "owner_type": "exchange",
+            "owner": "stuart"
+        },
+        "timestamp": 1588578065,
+        "amount": 500000,
+        "amount_usd": 509513.7,
+        "transaction_count": 1
+    }]
+}
+text_success_bad_count = {
+    "result":
+    "success",
+    "cursor":
+    "2712f286-2712f286-5eafc711",
+    "count":
+    3,
+    "transactions": [{
+        "blockchain": "ethereum",
+        "symbol": "usdt",
+        "id": "655552612",
+        "transaction_type": "transfer",
+        "hash": "4cdfc57c737b4214fbce384e57f50d8b52f80c2eb470654f9fdc2062c534bf42",
+        "from": {
+            "address": "477b8d5ef7c2c42db84deb555419cd817c336b6f",
+            "owner_type": "unknown"
+        },
+        "to": {
+            "address": "b3fe1649862d7889ab002e0224a2db54870eafa9",
+            "owner_type": "unknown"
+        },
+        "timestamp": 1588578025,
+        "amount": 500000,
+        "amount_usd": 503430.84,
+        "transaction_count": 1
+    }, {
+        "blockchain": "ethereum",
+        "symbol": "usdt",
+        "id": "655553158",
+        "transaction_type": "transfer",
+        "hash": "19a393cb0fe2cd5975a3741e43f05859877b639b1c93dd19acd4abfa08715530",
+        "from": {
+            "address": "df38a19aa5db1f15c6df389d86175285d45fa572",
+            "owner_type": "unknown"
+        },
+        "to": {
+            "address": "80c6e081ae5813b163357774003d3695faa0f53e",
+            "owner_type": "unknown"
+        },
+        "timestamp": 1588578065,
+        "amount": 500000,
+        "amount_usd": 509513.7,
+        "transaction_count": 1
+    }]
+}
+text_success_bad_key = {
+    "result":
+    "success",
+    "cursor":
+    "2712f286-2712f286-5eafc711",
+    "count":
+    2,
+    "transactions": [{
+        "bad_key": "ethereum",
+        "symbol": "usdt",
+        "id": "655552612",
+        "transaction_type": "transfer",
+        "hash": "4cdfc57c737b4214fbce384e57f50d8b52f80c2eb470654f9fdc2062c534bf42",
+        "from": {
+            "address": "477b8d5ef7c2c42db84deb555419cd817c336b6f",
+            "owner_type": "unknown"
+        },
+        "to": {
+            "address": "b3fe1649862d7889ab002e0224a2db54870eafa9",
+            "owner_type": "unknown"
+        },
+        "timestamp": 1588578025,
+        "amount": 500000,
+        "amount_usd": 503430.84,
+        "transaction_count": 1
+    }, {
+        "blockchain": "ethereum",
+        "symbol": "usdt",
+        "id": "655553158",
+        "transaction_type": "transfer",
+        "hash": "19a393cb0fe2cd5975a3741e43f05859877b639b1c93dd19acd4abfa08715530",
+        "from": {
+            "address": "df38a19aa5db1f15c6df389d86175285d45fa572",
+            "owner_type": "unknown"
+        },
+        "to": {
+            "address": "80c6e081ae5813b163357774003d3695faa0f53e",
+            "owner_type": "unknown"
+        },
+        "timestamp": 1588578065,
+        "amount": 500000,
+        "amount_usd": 509513.7,
+        "transaction_count": 1
+    }]
+}
 text_bad_json = 'not a good json format'
 
 
 class WhaleAlertAPI(unittest.TestCase):
-
     def setUp(self):
         self.transactions = Transactions()
 
@@ -45,7 +178,11 @@ class WhaleAlertAPI(unittest.TestCase):
         call_parameters['min_value'] = min_value
         call_parameters['limit'] = 100
 
-        expected = [mock.call(settings.whale_get_transactions_url, params=call_parameters, timeout=settings.whale_call_timeout_seconds)]
+        expected = [
+            mock.call(settings.whale_get_transactions_url,
+                      params=call_parameters,
+                      timeout=settings.whale_call_timeout_seconds)
+        ]
         self.transactions.get_transactions(start_time, end_time, api_key, cursor, min_value, limit)
         self.assertEqual(expected, Session.get.mock_calls)
 
@@ -70,7 +207,11 @@ class WhaleAlertAPI(unittest.TestCase):
         call_parameters['end'] = end_time
         call_parameters['cursor'] = cursor
 
-        expected = [mock.call(settings.whale_get_transactions_url, params=call_parameters, timeout=settings.whale_call_timeout_seconds)]
+        expected = [
+            mock.call(settings.whale_get_transactions_url,
+                      params=call_parameters,
+                      timeout=settings.whale_call_timeout_seconds)
+        ]
         self.transactions.get_transactions(start_time, end_time, api_key, cursor, min_value, limit)
         self.assertEqual(expected, Session.get.mock_calls)
 
@@ -179,7 +320,7 @@ class WhaleAlertAPI(unittest.TestCase):
         success, transactions, status = self.make_nomral_request()
         self.assertEqual(success, True)
         self.assertEqual(status[settings.status_file_option_error_code], 200)
-        self.assertGreaterEqual(self.transactions.get_last_timestamp(), int(time.time())-1)
+        self.assertGreaterEqual(self.transactions.get_last_timestamp(), int(time.time()) - 1)
         self.assertEqual(self.transactions.get_last_cursor(), text_success['cursor'])
         self.assertEqual(transactions[1], text_success['transactions'][1])
 

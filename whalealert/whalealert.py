@@ -9,6 +9,7 @@ from configchecker import ConfigChecker
 from dbops.sqhelper import SQHelper
 from whalealert.api.transactions import Transactions
 from whalealert.puslisher.writer import Writer
+from whalealert.puslisher.reader import Reader
 import whalealert.settings as settings
 
 log = logging.getLogger(__name__)
@@ -38,6 +39,7 @@ class WhaleAlert():
             self.__database = self.__setup_database(working_directory)
             self.__status = self.__setup_status_file(working_directory)
             self.__writer = Writer(self.__status, self.__database)
+            self.__reader = Reader(self.__status, self.__database)
             self.__last_data_request_time = int(time.time())
         else:
             self.__config = None
@@ -297,5 +299,25 @@ class WhaleAlert():
         writer.save()
         return True
 
-    def data_request(self, request):
-        pass
+    def data_request(self, start=0, blockchain=None, symbols=None, max_results=2, get_since_last_request=False):
+        request = dict(settings.request_format)
+        if blockchain is not None:
+            request[settings.request_blockchain] = blockchain
+        else:
+            request[settings.request_blockchain] = ['*']
+
+        if symbols is not None:
+            request[settings.request_symbols] = symbols
+        else:
+            request[settings.request_symbols] = ['*']
+
+        if start is not None:
+            request[settings.request_from_time] = start
+        elif start is None and get_since_last_request is True:
+            request[settings.request_from_time] = self.__last_data_request_time
+        else:
+            request[settings.request_from_time] = 0
+
+        self.__last_data_request_time = int(time.time())
+        request[settings.request_maximum_results] = max_results
+        return self.__reader.data_request(request)

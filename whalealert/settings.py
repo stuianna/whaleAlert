@@ -102,3 +102,20 @@ whale_transaction_transaction_count = 'transaction_count'
 
 # Puslisher settings
 health_list_length = 30
+
+# Data request settings
+request_blockchain = 'blockchain'
+request_symbols = 'symbols'
+request_from_time = 'from_time'
+request_output_format = 'output_format'
+request_maximum_results = 'maximum_results'
+
+request_format = {
+    request_blockchain: [],
+    request_symbols: [],
+    request_from_time: 0,
+    request_output_format: 'str',
+    request_maximum_results: 1
+}
+
+request_time_format = "%m/%d/%Y %H:%M:%S"
