@@ -250,6 +250,16 @@ class WhaleAlert():
             log.error("Historical limit cannot be less than or equal to zero, daemon not starting")
             return
 
+        self.__status.set_value(settings.status_file_current_session_section_name,
+                                settings.status_file_option_successful_calls, 0)
+        self.__status.set_value(settings.status_file_current_session_section_name,
+                                settings.status_file_option_failed_calls, 0)
+        self.__status.set_value(settings.status_file_current_session_section_name,
+                                settings.status_file_option_success_rate, 100.0)
+        self.__status.set_value(settings.status_file_current_session_section_name, settings.status_file_option_health,
+                                100.0)
+        self.__status.write_configuration_file()
+
         start_time = self.__find_lastest_timestamp()
 
         while True:

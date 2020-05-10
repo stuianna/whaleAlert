@@ -124,6 +124,10 @@ if __name__ == '__main__':
     if args.status is True:
         sys.exit()
 
+    if args.excel is True:
+        whale.to_excel()
+        sys.exit()
+
     if args.query is True:
         if args.max is not None:
             maximum = int(args.max[0])
