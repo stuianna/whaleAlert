@@ -118,6 +118,12 @@ if __name__ == '__main__':
 
     whale = WhaleAlert(working_directory=working_directory, log_level=logging.INFO)
 
+    if args.generate_config is True:
+        sys.exit()
+
+    if args.status is True:
+        sys.exit()
+
     if args.query is True:
         if args.max is not None:
             maximum = int(args.max[0])
