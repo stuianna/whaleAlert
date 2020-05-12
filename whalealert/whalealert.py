@@ -264,7 +264,7 @@ class WhaleAlert():
 
         while True:
             if self.transactions.get_last_cursor() is None:
-                start_time = self.__find_lastest_timOutputestamp()
+                start_time = self.__find_latest_timestamp()
             else:
                 start_time = 0
 
@@ -282,7 +282,7 @@ class WhaleAlert():
 
             time.sleep(request_interval)
 
-    def __find_lastest_timestamp(self):
+    def __find_latest_timestamp(self):
         tables = self.__database.get_table_names()
         latest_timestamp = 0
         for table in tables:
