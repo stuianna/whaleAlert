@@ -119,3 +119,5 @@ request_format = {
 }
 
 request_time_format = "%m/%d/%Y %H:%M:%S"
+
+maximum_stored_latest_transaction = 1000

@@ -20,7 +20,7 @@ class Transactions():
     def __init__(self):
         self.__session = Session()
         self.__last_timestamp = int(time.time())
-        self.__last_cursor = ''
+        self.__last_cursor = None
         self.__call_return_time = int(time.time())
         logging.debug("Transactions object created")
 

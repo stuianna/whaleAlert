@@ -1,4 +1,5 @@
 import setuptools
+exec(open('whalealert/_version.py').read())
 
 with open("README.md","r") as fh:
     long_description = fh.read()
@@ -22,5 +23,6 @@ setuptools.setup(
     python_requires = '>=3.6',
     install_requires=[
         'requests',
+        'colorama'
     ],
     )

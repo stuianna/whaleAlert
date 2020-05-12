@@ -227,11 +227,13 @@ class WhaleAlert():
                 status['error_code'] = 20
                 status['error_message'] = "Failed to write transactions to database"
                 success = False
+        elif success is True and len(transactions) == 0:
+            success = False
 
         self.__writer.write_status(status)
         return success
 
-    def start_daemon(self, force=False):
+    def start_daemon(self, force=False, print_output=False):
         if daemon_already_running() and force is False:
             return
 
@@ -260,19 +262,23 @@ class WhaleAlert():
                                 100.0)
         self.__status.write_configuration_file()
 
-        start_time = self.__find_lastest_timestamp()
-
         while True:
+            if self.transactions.get_last_cursor() is None:
+                start_time = self.__find_lastest_timOutputestamp()
+            else:
+                start_time = 0
+
             end_time = int(time.time())
             if (end_time - start_time) > historical_limit:
                 start_time = end_time - historical_limit
 
-            success = self.fetch_and_store_data(start_time, end_time=end_time, api_key=api_key)
+            success = self.fetch_and_store_data(start_time,
+                                                end_time=end_time,
+                                                api_key=api_key,
+                                                cursor=self.transactions.get_last_cursor())
 
-            if success is True:
-                log.info("API call covered from {} to {} seconds (duration = {} seconds)".format(
-                    start_time, end_time, end_time - start_time))
-                start_time = end_time
+            if success is True and print_output:
+                print(self.get_new_transaction(pretty=True))
 
             time.sleep(request_interval)
 
@@ -309,7 +315,15 @@ class WhaleAlert():
         writer.save()
         return True
 
-    def data_request(self, start=0, blockchain=None, symbols=None, max_results=2, get_since_last_request=False):
+    def data_request(self,
+                     start=0,
+                     blockchain=None,
+                     symbols=None,
+                     max_results=20,
+                     pretty=False,
+                     as_df=False,
+                     as_dict=False):
+
         request = dict(settings.request_format)
         if blockchain is not None:
             request[settings.request_blockchain] = blockchain
@@ -321,13 +335,29 @@ class WhaleAlert():
         else:
             request[settings.request_symbols] = ['*']
 
-        if start is not None:
-            request[settings.request_from_time] = start
-        elif start is None and get_since_last_request is True:
-            request[settings.request_from_time] = self.__last_data_request_time
-        else:
-            request[settings.request_from_time] = 0
-
-        self.__last_data_request_time = int(time.time())
+        request[settings.request_from_time] = start
         request[settings.request_maximum_results] = max_results
-        return self.__reader.data_request(request)
+        return self.__reader.data_request(request, pretty, as_df, as_dict)
+
+    def get_new_transaction(self, pretty=False, as_df=False, as_dict=False):
+        """Get the transaction returned since the last call to this method
+
+        WARNING: If start_daemon is called with print_output = True, then this method
+        will not work as expected
+
+        Parameters:
+        pretty (Bool): Use ascii colour codes to format the output.
+        as_df (Bool): Return all transactions as a dataframe
+        as_dict (Bool): Retun as a {timestamp: '', 'text' ''} dictionary. Pretty output is also applied
+
+        as_df takes precendence over as_dict.
+
+        Returns:
+        Formatted output depending on the passed parameters.
+        """
+        if as_df is True:
+            return self.__writer.get_last_written()
+
+        return self.__reader.dataframe_to_transaction_output(self.__writer.get_last_written(),
+                                                             pretty=pretty,
+                                                             as_dict=as_dict)

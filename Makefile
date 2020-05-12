@@ -17,6 +17,7 @@ testRun: install package
 	$(CLI_APP) -s -j
 	$(CLI_APP) -s -d -j
 	$(CLI_APP) -q
+	$(CLI_APP) -v
 	$(CLI_APP) -q -m 1
 	$(CLI_APP) -q -b bitcoin
 	$(CLI_APP) -q -b bitcoin -t BTC

@@ -5,8 +5,10 @@ import logging
 import argparse
 import subprocess
 import appdirs
+import json
 import whalealert.settings as settings
 from whalealert.whalealert import WhaleAlert
+from whalealert._version import __version__
 import time
 
 log = logging.getLogger(__name__)
@@ -61,7 +63,7 @@ def create_arguments(parser):
                         nargs=1,
                         help="The maximum number of entries to be returned by a query. (default = 20) ")
 
-    parser.add_argument('-j', '--json', action='store_true', help="Use json format for status requests")
+    parser.add_argument('-j', '--json', action='store_true', help="Use json format for status and transaction requests")
 
     parser.add_argument('-l',
                         '--log',
@@ -73,6 +75,16 @@ def create_arguments(parser):
                         '--excel',
                         action='store_true',
                         help="Save the whale watching database to an Excel file 'whaleAlert.xlsl'")
+
+    parser.add_argument('-p',
+                        '--pretty',
+                        action='store_true',
+                        help="Use ASCII colour codes to 'pretty' format the output.")
+
+    parser.add_argument('-v',
+                        '--version',
+                        action='version',
+                        version="Whale Alert Loggerr. Version {}".format(__version__))
 
 
 def processLogLevel(level):
@@ -107,16 +119,16 @@ if __name__ == '__main__':
         working_directory = appdirs.user_config_dir(settings.appNameDirectory)
 
     if args.log is not None:
-        logLevel = processLogLevel(args.log[0])
+        log_level = processLogLevel(args.log[0])
     else:
-        logLevel = logging.INFO
+        log_level = logging.INFO
 
     if args.api_key is not None:
         api_key = args.api_key[0]
     else:
         api_key = None
 
-    whale = WhaleAlert(working_directory=working_directory, log_level=logging.INFO)
+    whale = WhaleAlert(working_directory=working_directory, log_level=log_level)
 
     if args.generate_config is True:
         sys.exit()
@@ -133,7 +145,21 @@ if __name__ == '__main__':
             maximum = int(args.max[0])
         else:
             maximum = 20
-        print(whale.data_request(blockchain=args.blockchain, symbols=args.tags, max_results=maximum))
+
+        if not args.json:
+            print(
+                whale.data_request(blockchain=args.blockchain,
+                                   symbols=args.tags,
+                                   max_results=maximum,
+                                   pretty=args.pretty))
+        else:
+            print(
+                json.dumps(
+                    whale.data_request(blockchain=args.blockchain,
+                                       symbols=args.tags,
+                                       max_results=maximum,
+                                       pretty=args.pretty,
+                                       as_dict=args.json)))
         sys.exit()
 
     whale.start_daemon()

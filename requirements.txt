@@ -1,6 +1,7 @@
 appdirs==1.4.3
 certifi==2020.4.5.1
 chardet==3.0.4
+colorama==0.4.3
 config-checker==0.0.1
 coverage==5.1
 db-ops==0.0.3

@@ -1,4 +1,5 @@
 import logging
+import pandas as pd
 from configchecker import ConfigChecker
 import whalealert.settings as settings
 
@@ -11,6 +12,7 @@ class Writer():
         self.__status = status
         self.__database = database
         self.__health_list = [1] * settings.health_list_length
+        self.__last_written = []
         if status is not None:
             log.debug("Pulisher started with initial status {}".format(status.get_expectations()))
 
@@ -52,8 +54,15 @@ class Writer():
                 return False
         return True
 
+    def get_last_written(self):
+        current_transactions = list(self.__last_written)
+        self.__last_written.clear()
+        return pd.DataFrame(current_transactions)
+
     def __add_entries(self, transaction):
         table_name = transaction[settings.database_table_identifier]
+        if len(self.__last_written) < settings.maximum_stored_latest_transaction:
+            self.__last_written.append(transaction)
         return self.__database.insert(table_name, transaction)
 
     def __squash_dictionary(self, transaction):
