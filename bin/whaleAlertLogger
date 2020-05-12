@@ -81,6 +81,11 @@ def create_arguments(parser):
                         action='store_true',
                         help="Use ASCII colour codes to 'pretty' format the output.")
 
+    parser.add_argument('-o',
+                        '--output',
+                        action='store_true',
+                        help="When running the daemon, print the latest received transactions.")
+
     parser.add_argument('-v',
                         '--version',
                         action='version',
@@ -162,5 +167,5 @@ if __name__ == '__main__':
                                        as_dict=args.json)))
         sys.exit()
 
-    whale.start_daemon()
+    whale.start_daemon(print_output=args.output)
     sys.exit()
