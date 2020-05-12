@@ -23,6 +23,14 @@ setuptools.setup(
     python_requires = '>=3.6',
     install_requires=[
         'requests',
-        'colorama'
+        'colorama',
+        'config-checker',
+        'db-ops',
+        'requests',
+        'pandas',
+        'numpy',
+        'appdirs',
+        'python-dateutil',
+        'urllib3'
     ],
     )

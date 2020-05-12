@@ -25,6 +25,7 @@ testRun: install package
 	$(CLI_APP) -w testWorkingDir -x
 	rm -f cryptoData.xlsx 
 	rm -rf testWorkingDir
+	pip install .
 
 package: venv test
 	@. $(VENV_ACTIVATE); \
