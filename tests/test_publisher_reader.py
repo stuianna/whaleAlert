@@ -506,3 +506,7 @@ class GettingLoggerStatus(unittest.TestCase):
         expected_status = None
         output = reader.status_request()
         self.assertEqual(expected_status, output)
+
+    def test_request_status_with_no_working_directory_returns_none(self):
+        output = self.reader.status_request()
+        self.assertEqual(None, output)

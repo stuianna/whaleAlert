@@ -32,6 +32,9 @@ class Reader():
         if self.__status is None or self.__config is None:
             return None
 
+        if not self.__contains_valid_status():
+            return None
+
         minutes = self.__calculate_mintues_since_last_good_call()
         health = self.__status.get_value(settings.status_file_current_session_section_name,
                                          settings.status_file_option_health)
@@ -46,6 +49,19 @@ class Reader():
             return status
         else:
             return "Last successful call {} minutes ago, health {}%".format(minutes, health)
+
+    def __contains_valid_status(self):
+        try:
+            self.__config.get_value(settings.API_section_name, settings.API_option_interval)
+            self.__status.get_value(settings.status_file_current_session_section_name,
+                                    settings.status_file_option_health)
+            Reader.from_local_time(
+                self.__status.get_value(settings.status_file_last_good_call_section_name,
+                                        settings.status_file_option_timeStamp))
+            return True
+        except Exception as e:
+            log.error("Cannot request status, badly formed status file. Exception {}".format(e))
+        return False
 
     def __logger_status_ok(self):
         call_inteval = self.__config.get_value(settings.API_section_name, settings.API_option_interval)
