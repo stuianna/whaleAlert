@@ -7,7 +7,7 @@ with open("README.md","r") as fh:
 setuptools.setup(
     name = "whale-alert",
     scripts = ['bin/whaleAlertLogger'],
-    version = '0.0.1',
+    version = __version__,
     author ="stuianna",
     author_email = "stuian@protonmail.com",
     description = "Cryptocurrency Whale Alert API Logger",

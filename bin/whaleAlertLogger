@@ -83,7 +83,7 @@ def create_arguments(parser):
     parser.add_argument('-v',
                         '--version',
                         action='version',
-                        version="Whale Alert Loggerr. Version {}".format(__version__))
+                        version="Whale Alert Logger. Version {}".format(__version__))
 
 
 def processLogLevel(level):
