@@ -35,7 +35,7 @@ class Reader():
         if not self.__contains_valid_status():
             return None
 
-        minutes = self.__calculate_mintues_since_last_good_call()
+        minutes = self.__calculate_minutes_since_last_good_call()
         health = self.__status.get_value(settings.status_file_current_session_section_name,
                                          settings.status_file_option_health)
         if as_dict:
@@ -72,7 +72,7 @@ class Reader():
             return False
         return True
 
-    def __calculate_mintues_since_last_good_call(self):
+    def __calculate_minutes_since_last_good_call(self):
         lastCall = Reader.from_local_time(
             self.__status.get_value(settings.status_file_last_good_call_section_name,
                                     settings.status_file_option_timeStamp))
@@ -89,6 +89,10 @@ class Reader():
             return self.__return_empty_result(pretty, as_df, as_dict)
 
         entries = self.__filter_request_by_blockchain(request)
+
+        if len(entries) == 0:
+            return self.__return_empty_result(pretty, as_df, as_dict)
+
         entries = self.__filter_request_by_symbols(request, entries)
 
         if len(entries) == 0:
