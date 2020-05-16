@@ -122,9 +122,12 @@ test_good_data = [{
     'transaction_count': 1
 }]
 
-expected_pretty_output = '\x1b[33m05/07/2020 21:01:21 \x1b[0m\x1b[37m500000.10 \x1b[31mETH\x1b[36m (500,000.00 USD) \x1b[0m transferred from \x1b[34munknown\x1b[0m to \x1b[34munknown\x1b[0m.'
-expected_pretty_large_sum = '\x1b[33m03/07/2017 10:14:11 \x1b[0m\x1b[37m1691976.50 \x1b[31mNEO\x1b[36m\x1b[1m (16,895,205.00 USD) \x1b[0m \x1b[31mburned\x1b[0m at \x1b[34munknown\x1b[0m.'
-expected_pretty_huge_sum = '\x1b[33m01/05/2014 00:27:31 \x1b[0m\x1b[37m500000000.00 \x1b[31mUSDT \x1b[36m\x1b[1m\x1b[4m(500,000,000.23 USD)\x1b[0m sold from \x1b[34munknown\x1b[0m to \x1b[34mbinance\x1b[0m.'
+expected_pretty_output = '\x1b[33m{} \x1b[0m\x1b[37m500000.10 \x1b[31mETH\x1b[36m (500,000.00 USD) \x1b[0m transferred from \x1b[34munknown\x1b[0m to \x1b[34munknown\x1b[0m.'.format(
+    Reader.to_local_time(test_good_data[4]['timestamp']))
+expected_pretty_large_sum = '\x1b[33m{} \x1b[0m\x1b[37m1691976.50 \x1b[31mNEO\x1b[36m\x1b[1m (16,895,205.00 USD) \x1b[0m \x1b[31mburned\x1b[0m at \x1b[34munknown\x1b[0m.'.format(
+    Reader.to_local_time(test_good_data[3]['timestamp']))
+expected_pretty_huge_sum = '\x1b[33m{} \x1b[0m\x1b[37m500000000.00 \x1b[31mUSDT \x1b[36m\x1b[1m\x1b[4m(500,000,000.23 USD)\x1b[0m sold from \x1b[34munknown\x1b[0m to \x1b[34mbinance\x1b[0m.'.format(
+    Reader.to_local_time(test_good_data[2]['timestamp']))
 
 
 def cleanup_working_directories():
