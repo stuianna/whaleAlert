@@ -39,7 +39,7 @@ class WhaleAlert():
             self.__database = self.__setup_database(working_directory)
             self.__status = self.__setup_status_file(working_directory)
             self.__writer = Writer(self.__status, self.__database)
-            self.__reader = Reader(self.__status, self.__database)
+            self.__reader = Reader(self.__status, self.__database, self.__config)
             self.__last_data_request_time = int(time.time())
         else:
             self.__config = None
@@ -361,3 +361,6 @@ class WhaleAlert():
         return self.__reader.dataframe_to_transaction_output(self.__writer.get_last_written(),
                                                              pretty=pretty,
                                                              as_dict=as_dict)
+
+    def status_request(self, as_dict=False):
+        return self.__reader.status_request(as_dict=as_dict)

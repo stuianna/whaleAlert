@@ -4,6 +4,7 @@ import time
 import logging
 import os
 import datetime
+import pandas as pd
 import whalealert.settings as settings
 from whalealert.publisher.writer import Writer
 from whalealert.publisher.reader import Reader
@@ -63,7 +64,7 @@ test_good_data = [{
     'blockchain': 'tron',
     'symbol': 'USDT',
     'id': '662472729',
-    'transaction_type': 'transfer',
+    'transaction_type': 'sold',
     'hash': '55f5fa53fd9c1a8430d79248e45f130b6ac08892ecd68e54cc600228919058d0',
     'from': {
         'address': 'c5a8859c44ac8aa2169afacf45b87c08593bec10',
@@ -76,14 +77,14 @@ test_good_data = [{
         'owner_type': 'exchange'
     },
     'timestamp': 1388874451,
-    'amount': 500000,
-    'amount_usd': 500000.23,
+    'amount': 500000000,
+    'amount_usd': 500000000.23,
     'transaction_count': 1
 }, {
     'blockchain': 'neo',
     'symbol': 'NEO',
     'id': '662472747',
-    'transaction_type': 'transfer',
+    'transaction_type': 'burn',
     'hash': '40d261b3c94b5c174c802e3d452bd3ad36a3ba6171cbae670d89137ec7a6932e',
     'from': {
         'address': 'b5cebb87ff1a48ca28abc25b4584ff5148d1808e',
@@ -97,7 +98,7 @@ test_good_data = [{
     },
     'timestamp': 1488874451,
     'amount': 1691976.5,
-    'amount_usd': 1689525,
+    'amount_usd': 16895205,
     'transaction_count': 1
 }, {
     'blockchain': 'ethereum',
@@ -121,6 +122,10 @@ test_good_data = [{
     'transaction_count': 1
 }]
 
+expected_pretty_output = '\x1b[33m05/07/2020 21:01:21 \x1b[0m\x1b[37m500000.10 \x1b[31mETH\x1b[36m (500,000.00 USD) \x1b[0m transferred from \x1b[34munknown\x1b[0m to \x1b[34munknown\x1b[0m.'
+expected_pretty_large_sum = '\x1b[33m03/07/2017 10:14:11 \x1b[0m\x1b[37m1691976.50 \x1b[31mNEO\x1b[36m\x1b[1m (16,895,205.00 USD) \x1b[0m \x1b[31mburned\x1b[0m at \x1b[34munknown\x1b[0m.'
+expected_pretty_huge_sum = '\x1b[33m01/05/2014 00:27:31 \x1b[0m\x1b[37m500000000.00 \x1b[31mUSDT \x1b[36m\x1b[1m\x1b[4m(500,000,000.23 USD)\x1b[0m sold from \x1b[34munknown\x1b[0m to \x1b[34mbinance\x1b[0m.'
+
 
 def cleanup_working_directories():
     try:
@@ -133,15 +138,43 @@ def cleanup_working_directories():
         _ = e_r
 
 
-def format_output(data):
+def flattern_transactions(transactions):
+    new_trans = []
+    for t in transactions:
+        new_dict = dict(t)
+        new_dict[settings.database_column_from_address] = t['from']['address']
+        new_dict[settings.database_column_from_owner] = t['from']['owner']
+        new_dict[settings.database_column_from_owner_type] = t['from']['owner_type']
+        new_dict[settings.database_column_to_address] = t['to']['address']
+        new_dict[settings.database_column_to_owner] = t['to']['owner']
+        new_dict[settings.database_column_to_owner_type] = t['to']['owner_type']
+
+        new_dict.pop('from', None)
+        new_dict.pop('to', None)
+        new_trans.append(new_dict)
+    return new_trans
+
+
+def format_output(data, as_dict=False):
     if data['to']['owner'] == '':
         data['to']['owner'] = 'unknown'
     if data['from']['owner'] == '':
         data['from']['owner'] = 'unknown'
-    return Reader.to_local_time(data['timestamp']) + " " + str("{:.2f}".format(
-        data['amount'])) + " " + data['symbol'].upper() + " (" + Reader.format_currency(
-            data['amount_usd']
-        ) + " USD) " + "transferred from " + data['from']['owner'] + ' to ' + data['to']['owner'] + '.\n'
+    if as_dict:
+        return {
+            'timestamp':
+            Reader.to_local_time(data['timestamp']),
+            'text':
+            str("{:.2f}".format(data['amount'])) + " " + data['symbol'].upper() + " (" +
+            Reader.format_currency(data['amount_usd']) + " USD) " + "transferred from " + data['from']['owner'] +
+            ' to ' + data['to']['owner'] + '.'
+        }
+
+    else:
+        return Reader.to_local_time(data['timestamp']) + " " + str("{:.2f}".format(
+            data['amount'])) + " " + data['symbol'].upper() + " (" + Reader.format_currency(
+                data['amount_usd']
+            ) + " USD) " + "transferred from " + data['from']['owner'] + ' to ' + data['to']['owner'] + '.\n'
 
 
 class RequestingStatusByExchange(unittest.TestCase):
@@ -319,6 +352,48 @@ class RequestingStatusByExchange(unittest.TestCase):
         output = self.reader.data_request(request)
         self.assertEqual(output, expected_output)
 
+    def test_both_wildcards_return_all_results_as_dict(self):
+        self.add_call_to_database(test_good_data)
+        request = dict(settings.request_format)
+        request[settings.request_blockchain] = ['*']
+        request[settings.request_symbols] = ['*']
+        request[settings.request_maximum_results] = 1
+        request[settings.request_from_time] = 0
+        data = test_good_data[4]
+        expected_output = format_output(data, as_dict=True)
+        output = self.reader.data_request(request, as_dict=True)
+        self.assertEqual(output, [expected_output])
+
+    def test_single_result_pretty_format(self):
+        self.add_call_to_database(test_good_data)
+        request = dict(settings.request_format)
+        request[settings.request_blockchain] = ['*']
+        request[settings.request_symbols] = ['*']
+        request[settings.request_maximum_results] = 1
+        request[settings.request_from_time] = 0
+        output = self.reader.data_request(request, pretty=True)
+        self.assertEqual([output], [expected_pretty_output])
+
+    def test_single_result_pretty_format_medium_sum(self):
+        self.add_call_to_database(test_good_data)
+        request = dict(settings.request_format)
+        request[settings.request_blockchain] = ['neo']
+        request[settings.request_symbols] = ['*']
+        request[settings.request_maximum_results] = 1
+        request[settings.request_from_time] = 0
+        output = self.reader.data_request(request, pretty=True)
+        self.assertEqual([output], [expected_pretty_large_sum])
+
+    def test_single_pretty_format_huge_sum(self):
+        self.add_call_to_database(test_good_data)
+        request = dict(settings.request_format)
+        request[settings.request_blockchain] = ['tron']
+        request[settings.request_symbols] = ['*']
+        request[settings.request_maximum_results] = 1
+        request[settings.request_from_time] = 0
+        output = self.reader.data_request(request, pretty=True)
+        self.assertEqual([output], [expected_pretty_huge_sum])
+
     def test_calling_without_database_returns_empty_string(self):
         reader = Reader()
         request = dict(settings.request_format)
@@ -329,6 +404,24 @@ class RequestingStatusByExchange(unittest.TestCase):
         output = reader.data_request(request)
         self.assertEqual(output, '')
 
+    def test_calling_with_empty_database_returns_empty_list(self):
+        request = dict(settings.request_format)
+        request[settings.request_blockchain] = ['*']
+        request[settings.request_symbols] = ['*']
+        request[settings.request_maximum_results] = 5
+        request[settings.request_from_time] = 0
+        output = self.reader.data_request(request, as_dict=True)
+        self.assertEqual(output, [])
+
+    def test_calling_with_empty_database_returns_empty_dataFrame(self):
+        request = dict(settings.request_format)
+        request[settings.request_blockchain] = ['*']
+        request[settings.request_symbols] = ['*']
+        request[settings.request_maximum_results] = 5
+        request[settings.request_from_time] = 0
+        output = self.reader.data_request(request, as_df=True)
+        self.assertIs(output.empty, True)
+
     def test_bad_data_request_returns_empty_string(self):
         bad_request = {
             'bad_key': 'sfd',
@@ -336,3 +429,77 @@ class RequestingStatusByExchange(unittest.TestCase):
         }
         output = self.reader.data_request(bad_request)
         self.assertEqual(output, '')
+
+    def test_getting_all_data_as_df(self):
+        self.add_call_to_database(test_good_data)
+        request = dict(settings.request_format)
+        request[settings.request_blockchain] = ['*']
+        request[settings.request_symbols] = ['*']
+        request[settings.request_maximum_results] = 5
+        request[settings.request_from_time] = 0
+        expected_output = pd.DataFrame(flattern_transactions(test_good_data))
+        expected_output = expected_output.reindex(sorted(expected_output.columns), axis=1)
+        output = self.reader.data_request(request, as_df=True)
+        pd.testing.assert_frame_equal(expected_output, output)
+
+
+class GettingLoggerStatus(unittest.TestCase):
+    def setUp(self):
+        self.whale = WhaleAlert(working_directory=TEST_WORKING_DIR)
+        self.writer = Writer(self.whale.get_status(), self.whale.get_database())
+        self.reader = Reader(self.whale.get_status(), self.whale.get_database(), self.whale.get_configuration())
+
+    def tearDown(self):
+        cleanup_working_directories()
+
+    def write_good_status(self, unix_timestamp):
+        status = dict()
+        status['timestamp'] = Reader.to_local_time(unix_timestamp)
+        status['error_code'] = 200
+        status['error_message'] = 'A dud message'
+        status['transaction_count'] = 0
+        self.writer.write_status(status)
+
+    def write_bad_status(self, unix_timestamp):
+        status = dict()
+        status['timestamp'] = Reader.to_local_time(unix_timestamp)
+        status['error_code'] = 1
+        status['error_message'] = 'A dud message'
+        status['transaction_count'] = 0
+        self.writer.write_status(status)
+
+    def test_getting_status_stdout(self):
+        last_good_call_seconds_ago = 300
+        last_good_call_minutes = int(round(last_good_call_seconds_ago / 60, 0))
+        health = round(100 * (settings.health_list_length - 1) / settings.health_list_length, 1)
+        self.write_bad_status(int(time.time()) - 200)
+        self.write_good_status(int(time.time()) - last_good_call_seconds_ago)
+        output = self.reader.status_request()
+        expected_std_status = "Last successful call {} minutes ago, health {}%".format(last_good_call_minutes, health)
+        self.assertEqual(expected_std_status, output)
+
+    def test_getting_status_dict(self):
+        last_good_call_seconds_ago = 100
+        last_good_call_minutes = int(round(last_good_call_seconds_ago / 60, 0))
+        health = round(100 * (settings.health_list_length - 1) / settings.health_list_length, 1)
+        self.write_bad_status(int(time.time()) - 200)
+        self.write_good_status(int(time.time()) - last_good_call_seconds_ago)
+        output = self.reader.status_request(as_dict=True)
+        expected_status = {'last_call': last_good_call_minutes, 'health': health, 'status': 'Ok'}
+        self.assertEqual(expected_status, output)
+
+    def test_getting_status_dict_logger_not_ok(self):
+        last_good_call_seconds_ago = 700
+        last_good_call_minutes = int(round(last_good_call_seconds_ago / 60, 0))
+        health = round(100 * (settings.health_list_length - 1) / settings.health_list_length, 1)
+        self.write_bad_status(int(time.time()) - 200)
+        self.write_good_status(int(time.time()) - last_good_call_seconds_ago)
+        output = self.reader.status_request(as_dict=True)
+        expected_status = {'last_call': last_good_call_minutes, 'health': health, 'status': 'Error'}
+        self.assertEqual(expected_status, output)
+
+    def test_request_status_with_no_working_directory_returns_none(self):
+        reader = Reader()
+        expected_status = None
+        output = reader.status_request()
+        self.assertEqual(expected_status, output)

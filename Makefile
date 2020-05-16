@@ -13,9 +13,7 @@ testRun: install package
 	$(CLI_APP) -h
 	$(CLI_APP) -w testWorkingDir -g 
 	$(CLI_APP) -s
-	$(CLI_APP) -s -d
 	$(CLI_APP) -s -j
-	$(CLI_APP) -s -d -j
 	$(CLI_APP) -q
 	$(CLI_APP) -v
 	$(CLI_APP) -q -m 1

@@ -5,7 +5,7 @@ import pandas as pd
 from colorama import Fore
 from colorama import Style
 import whalealert.settings as settings
-from dateutil import tz
+from dateutil import tz, parser
 
 log = logging.getLogger(__name__)
 UNDERLINE = '\033[4m'
@@ -13,9 +13,10 @@ UNDERLINE = '\033[4m'
 
 class Reader():
     """ Reading Whale Alert API status and database results"""
-    def __init__(self, status=None, database=None):
+    def __init__(self, status=None, database=None, config=None):
         self.__status = status
         self.__database = database
+        self.__config = config
         if status is not None:
             log.debug("Pulisher started with initial status {}".format(status.get_expectations()))
 
@@ -27,17 +28,68 @@ class Reader():
         """Return the database object used"""
         return self.__database
 
+    def status_request(self, as_dict=False):
+        if self.__status is None or self.__config is None:
+            return None
+
+        minutes = self.__calculate_mintues_since_last_good_call()
+        health = self.__status.get_value(settings.status_file_current_session_section_name,
+                                         settings.status_file_option_health)
+        if as_dict:
+            status = dict()
+            if self.__logger_status_ok():
+                status['status'] = "Ok"
+            else:
+                status['status'] = "Error"
+            status['health'] = health
+            status['last_call'] = minutes
+            return status
+        else:
+            return "Last successful call {} minutes ago, health {}%".format(minutes, health)
+
+    def __logger_status_ok(self):
+        call_inteval = self.__config.get_value(settings.API_section_name, settings.API_option_interval)
+        last_call = Reader.from_local_time(
+            self.__status.get_value(settings.status_file_last_good_call_section_name,
+                                    settings.status_file_option_timeStamp))
+        if (int(time.time()) - last_call) > (call_inteval * 5):
+            return False
+        return True
+
+    def __calculate_mintues_since_last_good_call(self):
+        lastCall = Reader.from_local_time(
+            self.__status.get_value(settings.status_file_last_good_call_section_name,
+                                    settings.status_file_option_timeStamp))
+        currentTime = int(time.time())
+        return int(round((currentTime - lastCall) / 60, 0))
+
     def data_request(self, request, pretty=False, as_df=False, as_dict=False):
 
         if self.get_database() is None:
             log.error("Requesting data from a database with no working directory")
-            return ''
+            return self.__return_empty_result(pretty, as_df, as_dict)
 
         if self.__check_data_request_keys(request) is False:
-            return ''
+            return self.__return_empty_result(pretty, as_df, as_dict)
 
+        entries = self.__filter_request_by_blockchain(request)
+        entries = self.__filter_request_by_symbols(request, entries)
+
+        if len(entries) == 0:
+            return self.__return_empty_result(pretty, as_df, as_dict)
+
+        return self.dataframe_to_transaction_output(entries, request, pretty, as_dict=as_dict, as_df=as_df)
+
+    def __filter_request_by_symbols(self, request, entries):
+        symbols = request[settings.request_symbols]
+        if symbols == ['*']:
+            filter_by_symbol = entries
+        else:
+            filter_by_symbol = entries[entries[settings.database_column_symbol].isin(request[settings.request_symbols])]
+        return filter_by_symbol
+
+    def __filter_request_by_blockchain(self, request):
         all_entries = pd.DataFrame()
-
         if request[settings.request_blockchain] == ['*']:
             blockchains = self.__database.get_table_names()
         else:
@@ -50,18 +102,7 @@ class Reader():
                 log.warning("Data request for blockchain {} which isn't in database".format(blockchain))
                 continue
             all_entries = all_entries.append(new_entries)
-
-        if len(all_entries) == 0:
-            return ''
-
-        symbols = request[settings.request_symbols]
-        if symbols == ['*']:
-            filter_by_symbol = all_entries
-        else:
-            filter_by_symbol = all_entries[all_entries[settings.database_column_symbol].isin(
-                request[settings.request_symbols])]
-
-        return self.dataframe_to_transaction_output(filter_by_symbol, request, pretty, as_dict=as_dict, as_df=as_df)
+        return all_entries
 
     def dataframe_to_transaction_output(self, df, request=None, pretty=False, as_dict=False, as_df=False):
 
@@ -71,8 +112,17 @@ class Reader():
             sorted_by_time = sorted_by_time.tail(request[settings.request_maximum_results])
 
         if as_df:
+            sorted_by_time.reset_index(drop=True, inplace=True)
             return sorted_by_time
         return self.__make_result_string(sorted_by_time, pretty, as_dict)
+
+    def __return_empty_result(self, pretty, as_df, as_dict):
+        if as_df:
+            return pd.DataFrame()
+        elif as_dict:
+            return []
+        else:
+            return ''
 
     def __make_result_string(self, results, pretty, as_dict):
 
@@ -86,9 +136,9 @@ class Reader():
                     result[settings.database_column_from_owner] = 'unknown'
                 if as_dict:
                     output_dict = dict()
-                    output_dict['timestamp'] = self.__make_time_string(result, pretty)
+                    output_dict['timestamp'] = self.__make_time_string(result, pretty)[:-1]
                     output_dict['text'] = self.__make_amount_string(result, pretty) + self.__make_transfer_string(
-                        result, pretty)
+                        result, pretty)[:-1]
                     output_list.append(output_dict)
                 else:
                     output = output + self.__make_time_string(result, pretty) + self.__make_amount_string(
@@ -167,3 +217,6 @@ class Reader():
     def to_local_time(unix_timestamp):
         return datetime.datetime.fromtimestamp(unix_timestamp).astimezone(tz.tzlocal()).strftime(
             settings.request_time_format)
+
+    def from_local_time(iso8601):
+        return int((parser.parse(iso8601).astimezone(tz.tzlocal()).strftime('%s')))

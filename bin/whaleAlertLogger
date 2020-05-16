@@ -35,13 +35,7 @@ def create_arguments(parser):
                         '--status',
                         action='store_true',
                         help="Get the status of the whale alert logger, \
-            can be combined with -j and -l to modify the output format.")
-
-    parser.add_argument('-d',
-                        '--detail',
-                        action='store_true',
-                        help="To be used with the -s options.\
-            Outputs verbose information for the logger status.")
+            can be combined with -j to modify the output format.")
 
     parser.add_argument('-q',
                         '--query',
@@ -139,6 +133,11 @@ if __name__ == '__main__':
         sys.exit()
 
     if args.status is True:
+        if args.json:
+            status = whale.status_request(as_dict=True)
+            print(json.dumps(status))
+        else:
+            print(whale.status_request())
         sys.exit()
 
     if args.excel is True:
