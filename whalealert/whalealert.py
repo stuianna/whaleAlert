@@ -362,5 +362,18 @@ class WhaleAlert():
                                                              pretty=pretty,
                                                              as_dict=as_dict)
 
+    def dataframe_to_transaction_output(self, df: pd.DataFrame, pretty: bool, as_dict: bool):
+        """ Directly turn a transaction dataframe into transaction strings (or dictionaries)
+
+        Parameters:
+        df: A pandas dataframe aquired from data_request or get_new_transaction
+        pretty (bool): Use ascii colour codes to format the output.
+        as_dict (Bool): Retun as a {timestamp: '', 'text' ''} dictionary. Pretty output is also applied
+
+        Returns:
+        Formatted output depending on the passed parameters.
+        """
+        return self.__reader.dataframe_to_transaction_output(df, pretty=pretty, as_dict=as_dict)
+
     def status_request(self, as_dict=False):
         return self.__reader.status_request(as_dict=as_dict)
