@@ -89,7 +89,7 @@ whaleAlertLogger -x
 
 ## Stored Database and Configuration
 
-When the logger is initialised, it creates a directory structure inside `$XDG_CONFIG_HOME`. This could be `~/.local/share/CMCLogger` or `~/.config/CMCLogger`, use `echo $XDG_CONFIG_HOME` to find the location on your system.
+When the logger is initialised, it creates a directory structure inside `$XDG_CONFIG_HOME`. This could be `~/.local/share/whaleAlertLogger` or `~/.config/whaleAlertLogger`, use `echo $XDG_CONFIG_HOME` to find the location on your system.
 
 The directory structure is as follows:
 
