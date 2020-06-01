@@ -172,7 +172,18 @@ class WhaleAlert():
 
         Parameters:
         start_time (int): A unix time stamp representing the start time to get transactions (exclusive)
+        end_time (int): A unix time stamp representing the end time to get transactions (inclusive)
+        api_key (str): Key to use for transaction. Must be supplied if running with no configuration file.
+        cursor (str): The pagnation key used from the previous transaction. (optional)
+        min_value (int): The minimum value transaction to return (Free API has 500000 minimum)
+        limit (int): The maximum number of transactions to return (Maximum 100)
 
+        Returns:
+        success (bool) : If true, then a successful call was made (Return code of 200). Return false otherwise.
+        transactions (list or None):
+        - success = True: A list containing a dictionary for each transaction.
+        - success = False: None
+        status (dict): A dictionary containing the timestamp, error_code and error_message for the transaction.
         """
 
         if type(start_time) is not int:
@@ -210,6 +221,21 @@ class WhaleAlert():
         return self.__writer.write_status(status)
 
     def fetch_and_store_data(self, start_time, end_time=None, api_key=None, cursor=None, min_value=500000, limit=100):
+        """ Use the Whale Alert API to get the lastest transactions for a given time period. Store the result in given database.
+
+        The call and write status is written to the status file.
+
+        Parameters:
+        start_time (int): A unix time stamp representing the start time to get transactions (exclusive)
+        end_time (int): A unix time stamp representing the end time to get transactions (inclusive)
+        api_key (str): Key to use for transaction. Must be supplied if running with no configuration file.
+        cursor (str): The pagnation key used from the previous transaction. (optional)
+        min_value (int): The minimum value transaction to return (Free API has 500000 minimum)
+        limit (int): The maximum number of transactions to return (Maximum 100)
+
+        Returns:
+        success (bool) : If true, then a successful call was made, with data stored. Returns false otherwise.
+        """
         if self.__database is None:
             log.error("Trying to fetch data without an API key or working directory (cannot store data).")
             return False
@@ -234,6 +260,7 @@ class WhaleAlert():
         return success
 
     def start_daemon(self, force=False, print_output=False):
+        """ Start logging transactions to database based on configuration file values """
         if daemon_already_running() and force is False:
             return
 
@@ -297,9 +324,11 @@ class WhaleAlert():
         return int(latest_timestamp)
 
     def kill():
+        """ Kill any running daemon process """
         subprocess.Popen(['killall', PROCESS_NAME])
 
     def to_excel(self, output_file='whaleAlert.xlsx'):
+        """ Write the entire database to an excel file """
         if self.__database is None:
             return False
 
@@ -323,7 +352,17 @@ class WhaleAlert():
                      pretty=False,
                      as_df=False,
                      as_dict=False):
+        """ Retreive data from the trasaction database
 
+        Parameters:
+        start (int): Unix timestamp from where to start returning transactions
+        blockchain (list): Return transactions from a specific blockchains, defaults to all.
+        symbols (list): Return transactions for speciffic symbols (tags), defaults to all.
+        max_results (int): The maximum number of results to return.
+        pretty (bool): Use ASIC colour codes to format the output
+        as_df (bool): Return the results as a Pandas DataFrame
+        as_dict (bool): Return the results as a dictionary.
+        """
         request = dict(settings.request_format)
         if blockchain is not None:
             request[settings.request_blockchain] = blockchain
@@ -376,4 +415,5 @@ class WhaleAlert():
         return self.__reader.dataframe_to_transaction_output(df, pretty=pretty, as_dict=as_dict)
 
     def status_request(self, as_dict=False):
+        """ Get current status of the running logger"""
         return self.__reader.status_request(as_dict=as_dict)
